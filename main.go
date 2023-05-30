@@ -14,5 +14,5 @@ func main() {
 }
 
 func setOutput(key, value string) {
-	fmt.Printf("%s=%s >> $GITHUB_OUTPUT\n", key, value)
+	fmt.Printf(`%s=%s >> $GITHUB_OUTPUT\n`, key, value)
 }
