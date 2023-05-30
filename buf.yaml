@@ -1,0 +1,9 @@
+version: v1
+deps:
+  - buf.build/ensignia/controlplane
+lint:
+  use:
+    - DEFAULT
+breaking:
+  use:
+    - FILE

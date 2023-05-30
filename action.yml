@@ -1,0 +1,23 @@
+name: "Submit Provenance"
+description: "Submits SLSA Provenance to Ensignia Control-Plane"
+inputs:
+  binary: # id of input
+    description: "The binary that you built previously"
+    required: true
+  attestation:
+    description: "The SLSA Release Attestation .jsonl file"
+    required: true
+runs:
+  using: "docker"
+  image: "Dockerfile"
+  # using: "composite"
+  # steps:
+  #   - run: echo Hello ${{ inputs.who-to-greet }}.
+  #     shell: bash
+  #   - id: random-number-generator
+  #     run: echo "random-number=$(echo $RANDOM)" >> $GITHUB_OUTPUT
+  #     shell: bash
+  #   - run: echo "${{ github.action_path }}" >> $GITHUB_PATH
+  #     shell: bash
+  #   - run: goodbye.sh
+  #     shell: bash

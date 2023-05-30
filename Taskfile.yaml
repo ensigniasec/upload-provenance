@@ -1,0 +1,30 @@
+# https://taskfile.dev
+
+version: "3"
+
+tasks:
+  default:
+    cmds:
+      - task: generate-types
+    silent: true
+
+  generate-types:
+    cmds:
+      - buf mod update
+      - buf generate buf.build/ensignia/controlplane --path agent --include-imports
+
+  fmt:
+    silent: true
+    cmds:
+      - go fmt ./...
+
+  vet:
+    silent: true
+    cmds:
+      - go vet ./...
+
+  run:
+    cmds:
+      - task: fmt
+      - task: vet
+      - go run ./main.go
