@@ -13,7 +13,10 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: ensigniasec/actions@latest
+      - uses: ensigniasec/actions@main
+        with:
+          binary: "ensignia-operator-arm64"
+          attestation: "ensignia-operator-arm64-attestation.jsonl"
 
       # - uses: actions/checkout@v3
 
