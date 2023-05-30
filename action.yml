@@ -10,6 +10,7 @@ inputs:
 runs:
   using: "docker"
   image: "Dockerfile"
+
   # using: "composite"
   # steps:
   #   - run: echo Hello ${{ inputs.who-to-greet }}.

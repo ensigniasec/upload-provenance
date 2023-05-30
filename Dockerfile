@@ -1,17 +1,32 @@
-FROM golang:1.20.2 as builder
+FROM golang:1.20 AS builder
 
-WORKDIR /app
-COPY . /app
+ENV GO111MODULE=on \
+  CGO_ENABLED=0 \
+  GOOS=linux \
+  GOARCH=amd64
 
-RUN go mod download
+RUN apt-get -qq update && \
+  apt-get -yqq install upx
 
-# Statically compile our app for use in a distroless container
-RUN CGO_ENABLED=0 go build -ldflags="-w -s" -v -o app .
+WORKDIR /src
+COPY . .
 
-# A distroless container image with some basics like SSL certificates
-# https://github.com/GoogleContainerTools/distroless
-FROM gcr.io/distroless/static
+RUN go build \
+  -ldflags "-s -w -extldflags '-static'" \
+  -o /bin/app \
+  .
+# RUN strip /bin/app
+RUN upx -q -9 /bin/app
 
-COPY --from=builder /app/app /app
+RUN echo "nobody:x:65534:65534:Nobody:/:" > /etc_passwd
 
+
+
+FROM scratch
+
+COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
+COPY --from=builder /etc_passwd /etc/passwd
+COPY --from=builder --chown=65534:0 /bin/app /app
+
+USER nobody
 ENTRYPOINT ["/app"]
