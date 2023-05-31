@@ -35,6 +35,11 @@ func realMain(ctx context.Context) error {
 		gha.Fatalf("repo-token input param is required")
 	}
 
+	provenanceName := gha.GetInput("provenance-name")
+	if provenanceName == "" {
+		gha.Fatalf("provenance-name input param is required (e.g. 'needs.build.outputs.provenance-name')")
+	}
+
 	ghContext, err := gha.Context()
 	if err != nil {
 		return err
@@ -73,17 +78,14 @@ func realMain(ctx context.Context) error {
 	gha.Infof("Found %d artifacts", list.GetTotalCount())
 
 	for _, artifact := range list.Artifacts {
-		if artifact.GetName() == gha.GetInput("attestation") {
+		if artifact.GetName() == provenanceName {
 			gha.Infof("Found Artifact: Attestation %s", artifact.GetName())
 		}
 
 		gha.Infof("Artifact: %s", artifact.GetName())
 	}
 
-	bin := gha.GetInput("binary")
-	gha.Infof("Binary path: %s", bin)
-
-	setOutput("url", "https://console.ensignia.dev/")
+	// setOutput("url", "https://console.ensignia.dev/")
 	return nil
 }
 
