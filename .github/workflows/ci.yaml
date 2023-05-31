@@ -49,19 +49,13 @@ jobs:
   publish:
     needs: build
     runs-on: ubuntu-latest
-    permissions:
-      # id-token: write
-      contents: read
-      actions: read
-      # security-events: write
     steps:
       - name: Download artifact
         uses: actions/download-artifact@v3
         with:
           name: ${{ needs.build.outputs.go-provenance-name }}
 
-      - uses: ensigniasec/actions@main
+      - uses: ensigniasec/upload-provenance-action@main
         with:
           api-key: "${{ secrets.ENSIGNIA_API_KEY }}"
-          repo-token: ${{ secrets.GITHUB_TOKEN }}
           provenance-name: "${{ needs.build.outputs.go-provenance-name }}"

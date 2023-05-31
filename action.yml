@@ -4,12 +4,8 @@ inputs:
   api-key:
     description: "Ensignia API Key for GitHub Actions"
     required: true
-  repo-token:
-    description: "The internal GitHub Actions Token"
-    required: true
-    default: "${{ github.token }}"
   provenance-name:
-    description: "The SLSA Release Attestation .jsonl file"
+    description: "The SLSA Release Attestation .intoto.jsonl file"
     required: true
 runs:
   using: "docker"
