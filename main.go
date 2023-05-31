@@ -41,7 +41,9 @@ func realMain(ctx context.Context) error {
 	repo, owner := ghContext.Repo()
 
 	client := gh.NewTokenClient(ctx, ghToken)
-	list, _, err := client.Actions.ListArtifacts(ctx, owner, repo, nil)
+	list, _, err := client.Actions.ListArtifacts(ctx, owner, repo, &gh.ListOptions{
+		PerPage: 100,
+	})
 	if err != nil {
 		return err
 	}
