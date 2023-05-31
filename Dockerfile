@@ -20,8 +20,6 @@ RUN upx -q -9 /bin/app
 
 RUN echo "nobody:x:65534:65534:Nobody:/:" > /etc_passwd
 
-
-
 FROM scratch
 
 COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
