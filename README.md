@@ -1,8 +1,8 @@
 # upload-provenance-action
 
-Ensignia Provenance Action to compliment the [slsa-github-generator](slsa-framework/slsa-github-generator) action.
+Ensignia Provenance Action to compliment the [slsa-github-generator](github.com/slsa-framework/slsa-github-generator) action.
 
-Usage:
+## Usage:
 
 ```yaml
 steps:

@@ -2,9 +2,11 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"os"
 
+	dsselib "github.com/secure-systems-lab/go-securesystemslib/dsse"
 	gha "github.com/sethvargo/go-githubactions"
 )
 
@@ -18,6 +20,12 @@ func main() {
 	if err := realMain(ctx); err != nil {
 		gha.Fatalf("error: %s", err)
 	}
+}
+
+func EnvelopeFromBytes(payload []byte) (env *dsselib.Envelope, err error) {
+	env = &dsselib.Envelope{}
+	err = json.Unmarshal(payload, env)
+	return
 }
 
 func realMain(ctx context.Context) error {
@@ -38,7 +46,16 @@ func realMain(ctx context.Context) error {
 		return err
 	}
 
-	gha.Infof("Provenance: %s", string(prov)[0:100])
+	env, err := EnvelopeFromBytes(prov)
+	if err != nil {
+		return err
+	}
+
+	if env.PayloadType != "application/vnd.in-toto+json" {
+		return fmt.Errorf("invalid payload type: %s", env.PayloadType)
+	}
+
+	gha.Infof("Payload", env.Payload)
 
 	return nil
 }
