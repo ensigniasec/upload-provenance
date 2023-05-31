@@ -45,29 +45,27 @@ func realMain(ctx context.Context) error {
 
 	client := gh.NewTokenClient(ctx, ghToken)
 	var list *gh.ArtifactList
-	err = retry.Exponential(ctx, time.Second, func(ctx context.Context) error {
+
+	fn := func(ctx context.Context) error {
 		results, _, err := client.Actions.ListWorkflowRunArtifacts(ctx, owner, repo, runID, &gh.ListOptions{})
 		if err != nil {
 			return retry.RetryableError(err)
 		}
 
 		if results.GetTotalCount() == 0 {
+			gha.Warningf("Nothing found, retrying...")
+
 			return retry.RetryableError(fmt.Errorf("no artifacts found"))
 		}
 
 		gha.Infof("Found %d artifacts", results.GetTotalCount())
 
 		list = results
-
 		return nil
-	})
+	}
 
-	// list, _, err := client.Actions.ListWorkflowRunArtifacts(ctx, owner, repo, runID, &gh.ListOptions{
-	// 	PerPage: 100,
-	// })
-	// list, _, err := client.Actions.ListArtifacts(ctx, owner, repo, &gh.ListOptions{
-	// 	PerPage: 100,
-	// })
+	bo := retry.WithMaxRetries(10, retry.NewExponential(time.Second))
+	err = retry.Do(ctx, bo, fn)
 	if err != nil {
 		return err
 	}
