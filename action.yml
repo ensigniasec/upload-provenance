@@ -1,6 +1,9 @@
 name: "Submit Provenance"
 description: "Submits SLSA Provenance to Ensignia Control-Plane"
 inputs:
+  api_key:
+    description: "Ensignia API Key for GitHub Actions"
+    required: true
   binary: # id of input
     description: "The binary that you built previously"
     required: true

@@ -8,7 +8,19 @@ import (
 	gh "github.com/sethvargo/go-githubactions"
 )
 
+var Version = "dev"
+var Commit = "unknown"
+var CommitDate = "unknown"
+var TreeState = "unknown"
+
 func main() {
+	gh.Infof("Ensignia Action Version: %s", Version)
+
+	apiKey := gh.GetInput("api_key")
+	if apiKey == "" {
+		gh.Fatalf("api_key input param is required")
+	}
+
 	bin := gh.GetInput("binary")
 	gh.Infof("Binary path: %s", bin)
 
