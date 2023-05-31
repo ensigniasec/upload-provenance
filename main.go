@@ -42,9 +42,9 @@ func realMain(ctx context.Context) error {
 	runID := ghContext.RunID
 
 	client := gh.NewTokenClient(ctx, ghToken)
-
-	list, _, err := client.Actions.ListWorkflowRunArtifacts(ctx, owner, repo, runID, nil)
-
+	list, _, err := client.Actions.ListWorkflowRunArtifacts(ctx, owner, repo, runID, &gh.ListOptions{
+		PerPage: 100,
+	})
 	// list, _, err := client.Actions.ListArtifacts(ctx, owner, repo, &gh.ListOptions{
 	// 	PerPage: 100,
 	// })
@@ -52,7 +52,13 @@ func realMain(ctx context.Context) error {
 		return err
 	}
 
+	gha.Infof("Found %d artifacts", list.GetTotalCount())
+
 	for _, artifact := range list.Artifacts {
+		if artifact.GetName() == gha.GetInput("attestation") {
+			gha.Infof("Found Artifact: Attestation %s", artifact.GetName())
+		}
+
 		gha.Infof("Artifact: %s", artifact.GetName())
 	}
 
