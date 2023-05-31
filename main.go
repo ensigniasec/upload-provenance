@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"os"
+	"path"
 
 	gh "github.com/sethvargo/go-githubactions"
 )
@@ -15,6 +16,8 @@ var TreeState = "unknown"
 func main() {
 	gh.Infof("Ensignia Action Version: %s", Version)
 
+	workspace := os.Getenv("GITHUB_WORKSPACE")
+
 	apiKey := gh.GetInput("api_key")
 	if apiKey == "" {
 		gh.Fatalf("api_key input param is required")
@@ -23,7 +26,7 @@ func main() {
 	bin := gh.GetInput("binary")
 	gh.Infof("Binary path: %s", bin)
 
-	provenancePath := gh.GetInput("attestation")
+	provenancePath := path.Join(workspace, gh.GetInput("attestation"))
 	gh.Infof("Provenance path: %s", bin)
 
 	fi, err := os.Stat(provenancePath)
