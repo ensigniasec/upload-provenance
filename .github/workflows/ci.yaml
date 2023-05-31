@@ -43,11 +43,20 @@ jobs:
     with:
       go-version: 1.20.3
       evaluated-envs: "COMMIT_DATE:${{needs.args.outputs.commit-date}}, COMMIT:${{needs.args.outputs.commit}}, VERSION:${{needs.args.outputs.version}}, TREE_STATE:${{needs.args.outputs.tree-state}}"
+      upload-assets: true
+
+      # output-folder: "dist"
 
   publish:
     needs: build
     runs-on: ubuntu-latest
     steps:
+      - run: |
+          echo ${{ github.workspace }}
+          ls -la ${{ github.workspace }}
+          stat ${{ github.workspace }}/${{needs.build.outputs.go-provenance-name}}
+          stat $GITHUB_WORKSPACE/${{needs.build.outputs.go-provenance-name}}
+
       - uses: ensigniasec/actions@main
         with:
           api_key: "${{ secrets.ENSIGNIA_API_KEY }}"
