@@ -66,13 +66,17 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     permissions:
-      id-token: write
+      # id-token: write
       contents: read
       actions: read
       # security-events: write
     steps:
+      - name: Download artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: ${{needs.build.outputs.go-provenance-name}}
       - run: \
-          cat ${{ github.workspace }}/${{needs.build.outputs.go-provenance-name}}
+          cat ./${{needs.build.outputs.go-provenance-name}}
 
       # - uses: ensigniasec/actions@main
       #   with:
