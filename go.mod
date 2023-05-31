@@ -15,6 +15,7 @@ require (
 	github.com/google/go-querystring v1.1.0 // indirect
 	github.com/sethvargo/go-envconfig v0.8.0 // indirect
 	github.com/sethvargo/go-githubactions v1.1.0 // indirect
+	github.com/sethvargo/go-retry v0.2.4
 	golang.org/x/crypto v0.7.0 // indirect
 	golang.org/x/net v0.9.0 // indirect
 	golang.org/x/oauth2 v0.7.0 // indirect

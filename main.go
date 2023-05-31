@@ -3,9 +3,11 @@ package main
 import (
 	"context"
 	"fmt"
+	"time"
 
 	gh "github.com/google/go-github/v52/github"
 	gha "github.com/sethvargo/go-githubactions"
+	retry "github.com/sethvargo/go-retry"
 )
 
 var Version = "dev"
@@ -42,9 +44,27 @@ func realMain(ctx context.Context) error {
 	runID := ghContext.RunID
 
 	client := gh.NewTokenClient(ctx, ghToken)
-	list, _, err := client.Actions.ListWorkflowRunArtifacts(ctx, owner, repo, runID, &gh.ListOptions{
-		PerPage: 100,
+	var list *gh.ArtifactList
+	err = retry.Exponential(ctx, time.Second, func(ctx context.Context) error {
+		results, _, err := client.Actions.ListWorkflowRunArtifacts(ctx, owner, repo, runID, &gh.ListOptions{})
+		if err != nil {
+			return retry.RetryableError(err)
+		}
+
+		if results.GetTotalCount() == 0 {
+			return retry.RetryableError(fmt.Errorf("no artifacts found"))
+		}
+
+		gha.Infof("Found %d artifacts", results.GetTotalCount())
+
+		list = results
+
+		return nil
 	})
+
+	// list, _, err := client.Actions.ListWorkflowRunArtifacts(ctx, owner, repo, runID, &gh.ListOptions{
+	// 	PerPage: 100,
+	// })
 	// list, _, err := client.Actions.ListArtifacts(ctx, owner, repo, &gh.ListOptions{
 	// 	PerPage: 100,
 	// })
