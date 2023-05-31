@@ -71,9 +71,12 @@ jobs:
       actions: read
       # security-events: write
     steps:
-      - uses: ensigniasec/actions@main
-        with:
-          api-key: "${{ secrets.ENSIGNIA_API_KEY }}"
-          repo-token: ${{ secrets.GITHUB_TOKEN }}
-          provenance-name: "${{needs.build.outputs.go-provenance-name}}"
-          # binary: "${{needs.build.outputs.go-binary-name}}"
+      - run: \
+          stat ${{ github.workspace }}/${{needs.build.outputs.go-provenance-name}} || exit 1
+
+      # - uses: ensigniasec/actions@main
+      #   with:
+      #     api-key: "${{ secrets.ENSIGNIA_API_KEY }}"
+      #     repo-token: ${{ secrets.GITHUB_TOKEN }}
+      #     provenance-name: "${{needs.build.outputs.go-provenance-name}}"
+      #     # binary: "${{needs.build.outputs.go-binary-name}}"

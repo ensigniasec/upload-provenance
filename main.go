@@ -69,7 +69,7 @@ func realMain(ctx context.Context) error {
 		return nil
 	}
 
-	bo := retry.WithMaxRetries(10, retry.NewExponential(time.Second))
+	bo := retry.WithMaxRetries(5, retry.NewExponential(time.Second))
 	err = retry.Do(ctx, bo, fn)
 	if err != nil {
 		return err
