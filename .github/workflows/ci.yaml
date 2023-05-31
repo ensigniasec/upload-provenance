@@ -46,22 +46,6 @@ jobs:
       evaluated-envs: "COMMIT_DATE:${{needs.args.outputs.commit-date}}, COMMIT:${{needs.args.outputs.commit}}, VERSION:${{needs.args.outputs.version}}, TREE_STATE:${{needs.args.outputs.tree-state}}"
       upload-assets: true
 
-  # inspect:
-  #   permissions:
-  #     id-token: write # To sign the provenance.
-  #     contents: read # To upload assets to release.
-  #     actions: read # To read the workflow path.
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - run: |
-  #         echo "$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID/artifacts"
-
-  #         curl -L \
-  #         -H "Accept: application/vnd.github+json" \
-  #         -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}"\
-  #         -H "X-GitHub-Api-Version: 2022-11-28" \
-  #         $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID/artifacts
-
   publish:
     needs: build
     runs-on: ubuntu-latest
@@ -74,10 +58,10 @@ jobs:
       - name: Download artifact
         uses: actions/download-artifact@v3
         with:
-          name: ${{needs.build.outputs.go-provenance-name}}
+          name: ${{ needs.build.outputs.go-provenance-name }}
 
       - uses: ensigniasec/actions@main
         with:
           api-key: "${{ secrets.ENSIGNIA_API_KEY }}"
           repo-token: ${{ secrets.GITHUB_TOKEN }}
-          provenance-name: "${{needs.build.outputs.go-provenance-name}}"
+          provenance-name: "${{ needs.build.outputs.go-provenance-name }}"

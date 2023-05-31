@@ -18,6 +18,15 @@ runs:
 
   # using: "composite"
   # steps:
+  #   - name: Download artifact
+  #     uses: actions/download-artifact@v3
+  #     with:
+  #       name: ${{needs.build.outputs.go-provenance-name}}
+  #   - name: Upload provenance
+  #     # uses: actions/heroku@1.0.0
+  #     uses: "docker"
+  #     image: "Dockerfile"
+
   #   - run: echo Hello ${{ inputs.who-to-greet }}.
   #     shell: bash
   #   - id: random-number-generator
