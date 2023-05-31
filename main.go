@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"log"
 	"os"
 
 	gh "github.com/sethvargo/go-githubactions"
@@ -24,14 +23,31 @@ func main() {
 	bin := gh.GetInput("binary")
 	gh.Infof("Binary path: %s", bin)
 
-	entries, err := os.ReadDir("./")
+	provenancePath := gh.GetInput("attestation")
+	gh.Infof("Provenance path: %s", bin)
+
+	fi, err := os.Stat(provenancePath)
 	if err != nil {
-		log.Fatal(err)
+		gh.Fatalf("Failed to stat provenance file: %s", err)
 	}
 
-	for _, e := range entries {
-		fmt.Println(e.Name())
+	gh.Infof("Provenance file size: %d", fi.Size())
+
+	provFile, err := os.ReadFile(provenancePath)
+	if err != nil {
+		gh.Fatalf("Failed to read provenance file: %s", err)
 	}
+
+	gh.Infof("Provenance file contents: %s", string(provFile)[:100])
+
+	// entries, err := os.ReadDir("./")
+	// if err != nil {
+	// 	log.Fatal(err)
+	// }
+
+	// for _, e := range entries {
+	// 	fmt.Println(e.Name())
+	// }
 
 	setOutput("url", "https://console.ensignia.dev/")
 }
