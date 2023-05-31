@@ -46,8 +46,6 @@ jobs:
       evaluated-envs: "COMMIT_DATE:${{needs.args.outputs.commit-date}}, COMMIT:${{needs.args.outputs.commit}}, VERSION:${{needs.args.outputs.version}}, TREE_STATE:${{needs.args.outputs.tree-state}}"
       upload-assets: true
 
-      # output-folder: "dist"
-
   inspect:
     permissions:
       id-token: write # To sign the provenance.
@@ -56,6 +54,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - run: |
+          echo "$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID/artifacts"
+
           curl -L \
           -H "Accept: application/vnd.github+json" \
           -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}"\
