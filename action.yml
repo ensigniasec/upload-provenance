@@ -10,7 +10,6 @@ inputs:
     default: "${{ github.token }}"
   provenance-name:
     description: "The SLSA Release Attestation .jsonl file"
-    default: "${{ needs.build.outputs.go-provenance-name }}"
     required: true
 runs:
   using: "docker"
