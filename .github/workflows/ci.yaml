@@ -72,7 +72,7 @@ jobs:
       # security-events: write
     steps:
       - run: \
-          stat ${{ github.workspace }}/${{needs.build.outputs.go-provenance-name}} || exit 1
+          cat ${{ github.workspace }}/${{needs.build.outputs.go-provenance-name}}
 
       # - uses: ensigniasec/actions@main
       #   with:
