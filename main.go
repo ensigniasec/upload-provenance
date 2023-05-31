@@ -3,11 +3,9 @@ package main
 import (
 	"context"
 	"fmt"
-	"time"
+	"os"
 
-	gh "github.com/google/go-github/v52/github"
 	gha "github.com/sethvargo/go-githubactions"
-	retry "github.com/sethvargo/go-retry"
 )
 
 var Version = "dev"
@@ -30,60 +28,67 @@ func realMain(ctx context.Context) error {
 		gha.Fatalf("api-key input param is required")
 	}
 
-	ghToken := gha.GetInput("repo-token")
-	if apiKey == "" {
-		gha.Fatalf("repo-token input param is required")
-	}
+	// ghToken := gha.GetInput("repo-token")
+	// if apiKey == "" {
+	// 	gha.Fatalf("repo-token input param is required")
+	// }
 
 	provenanceName := gha.GetInput("provenance-name")
 	if provenanceName == "" {
 		gha.Fatalf("provenance-name input param is required (e.g. 'needs.build.outputs.provenance-name')")
 	}
 
-	ghContext, err := gha.Context()
+	prov, err := os.ReadFile(provenanceName)
 	if err != nil {
 		return err
 	}
 
-	owner, repo := ghContext.Repo()
-	runID := ghContext.RunID
+	gha.Infof("Provenance: %s", string(prov)[0:100])
 
-	client := gh.NewTokenClient(ctx, ghToken)
-	var list *gh.ArtifactList
+	// ghContext, err := gha.Context()
+	// if err != nil {
+	// 	return err
+	// }
 
-	fn := func(ctx context.Context) error {
-		results, _, err := client.Actions.ListWorkflowRunArtifacts(ctx, owner, repo, runID, &gh.ListOptions{})
-		if err != nil {
-			return retry.RetryableError(err)
-		}
+	// owner, repo := ghContext.Repo()
+	// runID := ghContext.RunID
 
-		if results.GetTotalCount() == 0 {
-			gha.Warningf("Nothing found, retrying...")
+	// client := gh.NewTokenClient(ctx, ghToken)
+	// var list *gh.ArtifactList
 
-			return retry.RetryableError(fmt.Errorf("no artifacts found"))
-		}
+	// fn := func(ctx context.Context) error {
+	// 	results, _, err := client.Actions.ListWorkflowRunArtifacts(ctx, owner, repo, runID, &gh.ListOptions{})
+	// 	if err != nil {
+	// 		return retry.RetryableError(err)
+	// 	}
 
-		gha.Infof("Found %d artifacts", results.GetTotalCount())
+	// 	if results.GetTotalCount() == 0 {
+	// 		gha.Warningf("Nothing found, retrying...")
 
-		list = results
-		return nil
-	}
+	// 		return retry.RetryableError(fmt.Errorf("no artifacts found"))
+	// 	}
 
-	bo := retry.WithMaxRetries(5, retry.NewExponential(time.Second))
-	err = retry.Do(ctx, bo, fn)
-	if err != nil {
-		return err
-	}
+	// 	gha.Infof("Found %d artifacts", results.GetTotalCount())
 
-	gha.Infof("Found %d artifacts", list.GetTotalCount())
+	// 	list = results
+	// 	return nil
+	// }
 
-	for _, artifact := range list.Artifacts {
-		if artifact.GetName() == provenanceName {
-			gha.Infof("Found Artifact: Attestation %s", artifact.GetName())
-		}
+	// bo := retry.WithMaxRetries(5, retry.NewExponential(time.Second))
+	// err = retry.Do(ctx, bo, fn)
+	// if err != nil {
+	// 	return err
+	// }
 
-		gha.Infof("Artifact: %s", artifact.GetName())
-	}
+	// gha.Infof("Found %d artifacts", list.GetTotalCount())
+
+	// for _, artifact := range list.Artifacts {
+	// 	if artifact.GetName() == provenanceName {
+	// 		gha.Infof("Found Artifact: Attestation %s", artifact.GetName())
+	// 	}
+
+	// 	gha.Infof("Artifact: %s", artifact.GetName())
+	// }
 
 	// setOutput("url", "https://console.ensignia.dev/")
 	return nil
