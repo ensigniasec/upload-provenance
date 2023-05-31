@@ -1,11 +1,11 @@
 package main
 
 import (
+	"context"
 	"fmt"
-	"os"
-	"path"
 
-	gh "github.com/sethvargo/go-githubactions"
+	gh "github.com/google/go-github/v52/github"
+	gha "github.com/sethvargo/go-githubactions"
 )
 
 var Version = "dev"
@@ -14,45 +14,47 @@ var CommitDate = "unknown"
 var TreeState = "unknown"
 
 func main() {
-	gh.Infof("Ensignia Action Version: %s", Version)
+	ctx := context.Background()
+	if err := realMain(ctx); err != nil {
+		gha.Fatalf("error: %s", err)
+	}
+}
 
-	workspace := os.Getenv("GITHUB_WORKSPACE")
+func realMain(ctx context.Context) error {
+	gha.Infof("Ensignia Action Version: %s", Version)
 
-	apiKey := gh.GetInput("api_key")
+	apiKey := gha.GetInput("api-key")
 	if apiKey == "" {
-		gh.Fatalf("api_key input param is required")
+		gha.Fatalf("api-key input param is required")
 	}
 
-	bin := gh.GetInput("binary")
-	gh.Infof("Binary path: %s", bin)
+	ghToken := gha.GetInput("repo-token")
+	if apiKey == "" {
+		gha.Fatalf("repo-token input param is required")
+	}
 
-	provenancePath := path.Join(workspace, gh.GetInput("attestation"))
-	gh.Infof("Provenance path: %s", bin)
-
-	fi, err := os.Stat(provenancePath)
+	ghContext, err := gha.Context()
 	if err != nil {
-		gh.Fatalf("Failed to stat provenance file: %s", err)
+		return err
 	}
 
-	gh.Infof("Provenance file size: %d", fi.Size())
+	repo, owner := ghContext.Repo()
 
-	provFile, err := os.ReadFile(provenancePath)
+	client := gh.NewTokenClient(ctx, ghToken)
+	list, _, err := client.Actions.ListArtifacts(ctx, owner, repo, nil)
 	if err != nil {
-		gh.Fatalf("Failed to read provenance file: %s", err)
+		return err
 	}
 
-	gh.Infof("Provenance file contents: %s", string(provFile)[:100])
+	for _, artifact := range list.Artifacts {
+		gha.Infof("Artifact: %s", artifact.GetName())
+	}
 
-	// entries, err := os.ReadDir("./")
-	// if err != nil {
-	// 	log.Fatal(err)
-	// }
-
-	// for _, e := range entries {
-	// 	fmt.Println(e.Name())
-	// }
+	bin := gha.GetInput("binary")
+	gha.Infof("Binary path: %s", bin)
 
 	setOutput("url", "https://console.ensignia.dev/")
+	return nil
 }
 
 func setOutput(key, value string) {
