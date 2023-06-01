@@ -4,8 +4,9 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"os"
 
-	intoto "github.com/in-toto/in-toto-golang/in_toto"
+	"ensignia.dev/actions/pkg/ingestion/intoto"
 	dsselib "github.com/secure-systems-lab/go-securesystemslib/dsse"
 	gha "github.com/sethvargo/go-githubactions"
 )
@@ -41,28 +42,32 @@ func realMain(ctx context.Context) error {
 		gha.Fatalf("provenance-name input param is required (e.g. 'needs.build.outputs.provenance-name')")
 	}
 
-	mb, err := intoto.LoadMetadata(provenanceName)
+	// mb, err := intoto.LoadMetadata(provenanceName)
+	// if err != nil {
+	// 	return err
+	// }
+
+	// payload := mb.GetPayload()
+
+	provFile, err := os.ReadFile(provenanceName)
 	if err != nil {
 		return err
 	}
 
-	payload := mb.GetPayload()
+	env, err := intoto.NewFromBytes(provFile)
+	if err != nil {
+		return err
+	}
 
-	// prov, err := os.ReadFile(provenanceName)
-	// if err != nil {
-	// 	return err
-	// }
+	if env.PayloadType != "application/vnd.in-toto+json" {
+		return fmt.Errorf("invalid payload type: %s", env.PayloadType)
+	}
 
-	// env, err := EnvelopeFromBytes(prov)
-	// if err != nil {
-	// 	return err
-	// }
+	gha.Infof("Subject %s:%s", env.Statement.Subject[0].Name, env.Statement.Subject[0].Digest)
 
-	// if env.PayloadType != "application/vnd.in-toto+json" {
-	// 	return fmt.Errorf("invalid payload type: %s", env.PayloadType)
-	// }
-
-	gha.Infof("Payload type: %T data: %+v", payload, payload)
+	for _, m := range env.Statement.Predicate.Materials {
+		gha.Infof("Material uri: %q digests: %v", m.URI, m.Digest)
+	}
 
 	return nil
 }

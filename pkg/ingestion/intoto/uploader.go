@@ -1,9 +1,11 @@
 package intoto
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 
+	intoto "github.com/in-toto/in-toto-golang/in_toto"
 	dsselib "github.com/secure-systems-lab/go-securesystemslib/dsse"
 )
 
@@ -17,7 +19,7 @@ type (
 	Envelope struct {
 		*dsselib.Envelope
 		decodedData []byte
-		prov        *ProvenanceV1
+		Statement   *intoto.ProvenanceStatementSLSA02
 	}
 )
 
@@ -42,24 +44,16 @@ func NewFromBytes(content []byte) (*Envelope, error) {
 		return nil, err
 	}
 
-	// prov := &ProvenanceV1{
-	// 	predicateType: slsa1.PredicateSLSAProvenance,
-	// }
+	prov := &intoto.ProvenanceStatementSLSA02{}
 
-	// dec := json.NewDecoder(bytes.NewReader(data))
-	// dec.DisallowUnknownFields()
-	// err = dec.Decode(prov)
-	// if err != nil {
-	// 	return nil, err
-	// }
-
-	// intoto := &intoto.Envelope{}
-	// err = intoto.SetPayload(data)
-	// if err != nil {
-	// 	return nil, err
-	// }
+	dec := json.NewDecoder(bytes.NewReader(data))
+	dec.DisallowUnknownFields()
+	err = dec.Decode(prov)
+	if err != nil {
+		return nil, err
+	}
 
 	// TODO: Verify signature
 
-	return &Envelope{Envelope: env, decodedData: data, prov: prov}, nil
+	return &Envelope{Envelope: env, decodedData: data, Statement: prov}, nil
 }
